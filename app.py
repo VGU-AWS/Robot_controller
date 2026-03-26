@@ -1,7 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
+import boto3
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten later for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+runtime = boto3.client("sagemaker-runtime")
+ENDPOINT_NAME = os.environ["SAGEMAKER_ENDPOINT_NAME"]
 
 class StatusCode(Enum):
     AVAILABLE = "available"
@@ -35,6 +47,23 @@ async def send_command(client_id: str):
 @app.get("/check_status/")
 async def check_status():
     return {"message": "Status check successful"}
+    
+@app.post("/infer")
+async def infer(request: Request):
+    body = await request.body()
+    content_type = request.headers.get("content-type", "application/octet-stream")
+
+    resp = runtime.invoke_endpoint(
+        EndpointName=ENDPOINT_NAME,
+        Body=body,
+        ContentType=content_type,
+        Accept="application/json",
+    )
+
+    result = resp["Body"].read()
+    response_content_type = resp.get("ContentType", "application/json")
+
+    return Response(content=result, media_type=response_content_type)
 
 if __name__ == "__main__":
     import uvicorn

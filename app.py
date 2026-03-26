@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
 import boto3
+import uvicorn
 
 app = FastAPI()
 app.add_middleware(

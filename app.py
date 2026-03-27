@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
 import boto3
 import uvicorn
+import os
 
 app = FastAPI()
 app.add_middleware(
@@ -13,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-runtime = boto3.client("sagemaker-runtime")
+runtime = boto3.client("sagemaker-runtime", region_name=os.environ["AWS_REGION"])
 ENDPOINT_NAME = os.environ["SAGEMAKER_ENDPOINT_NAME"]
 
 class StatusCode(Enum):

@@ -1,6 +1,6 @@
 import secrets
 from datetime import datetime, timezone
-
+import os
 from fastapi import FastAPI, Depends, Header, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, select, func

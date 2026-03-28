@@ -290,6 +290,31 @@ def delete_all_robots(db: Session = Depends(get_db)):
     db.commit()
     return {"message": "all robots and related commands deleted"}
 
+@app.post("/user/release-robot")
+def release_robot(
+    robot_id: int,
+    x_user_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    user = require_user(db, x_user_token)
+
+    robot = db.get(Robot, robot_id)
+    if not robot:
+        raise HTTPException(status_code=404, detail="Robot not found")
+
+    if robot.owner_user_id != user.id:
+        raise HTTPException(status_code=403, detail="You do not own this robot")
+
+    db.query(Command).filter(Command.robot_id == robot.id).delete()
+    robot.owner_user_id = None
+    db.commit()
+    db.refresh(robot)
+
+    return {
+        "message": "robot released",
+        "robot_id": robot.id,
+        "owner_user_id": robot.owner_user_id,
+    }
 
 if __name__ == "__main__":
     import uvicorn

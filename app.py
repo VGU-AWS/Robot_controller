@@ -340,6 +340,18 @@ def release_current_robot(
         "robot_name": robot.name,
         "owner_user_id": robot.owner_user_id,
     }
+@app.post("/admin/disconnect-all-users")
+def disconnect_all_users(db: Session = Depends(get_db)):
+    disconnected_robots = (
+        db.query(Robot)
+        .filter(Robot.owner_user_id.is_not(None))
+        .update({Robot.owner_user_id: None}, synchronize_session=False)
+    )
+    db.commit()
+    return {
+        "message": "all users disconnected from all robots",
+        "disconnected_robots": disconnected_robots,
+    }
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(

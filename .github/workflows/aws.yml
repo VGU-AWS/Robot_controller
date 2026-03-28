@@ -8,7 +8,11 @@ env:
   AWS_REGION: ap-southeast-1
   ECR_REPOSITORY: experienceday/robot_controller
   APP_RUNNER_SERVICE_NAME: experienceday-robot-controller
-  APP_RUNNER_PORT: "8000"
+  APP_RUNNER_PORT: "8080"
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
 permissions:
   contents: read
@@ -42,7 +46,12 @@ jobs:
         run: |
           set -euo pipefail
           docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build \
+            --build-arg DB_HOST="$DB_HOST" \
+            --build-arg DB_NAME="$DB_NAME" \
+            --build-arg DB_USER="$DB_USER" \
+            --build-arg DB_PASSWORD="$DB_PASSWORD" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
 
           # also push latest so App Runner can track a stable tag if desired
           docker tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"

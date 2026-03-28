@@ -243,6 +243,7 @@ def delete_all_robots(db: Session = Depends(get_db)):
 
 
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(
         app,
         host=os.getenv("HOST", "0.0.0.0"),

@@ -2,6 +2,8 @@ import secrets
 from datetime import datetime, timezone
 import os
 from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, select, func
 from sqlalchemy.orm import sessionmaker, declarative_base, Session, relationship
@@ -26,6 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def utcnow():
     return datetime.now(timezone.utc)
@@ -124,7 +127,12 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
-    return {"message": "robot api running"}
+    return {"message": "robot api running", "ui": "/ui"}
+
+
+@app.get("/ui")
+def ui():
+    return FileResponse("static/index.html")
 
 
 @app.get("/health/db")

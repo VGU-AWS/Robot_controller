@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, Header, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, select, func
 from sqlalchemy.orm import sessionmaker, declarative_base, Session, relationship
+from fastapi.middleware.cors import CORSMiddleware
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = int(os.getenv("DB_PORT", "5432"))

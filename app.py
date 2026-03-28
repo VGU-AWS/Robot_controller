@@ -233,6 +233,55 @@ def my_robots(x_user_token: str | None = Header(default=None), db: Session = Dep
 def available_robots(db: Session = Depends(get_db)):
     count = db.query(func.count(Robot.id)).filter(Robot.owner_user_id.is_(None)).scalar()
     return {"available_robots": count}
+    
+@app.post("/user/assign-free-robot")
+def assign_free_robot(
+    x_user_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    if not x_user_token:
+        raise HTTPException(status_code=401, detail="Missing X-User-Token")
+
+    user = db.execute(
+        select(User).where(User.user_token == x_user_token)
+    ).scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid user token")
+
+    existing_robot = db.execute(
+        select(Robot).where(Robot.owner_user_id == user.id).order_by(Robot.id.asc())
+    ).scalar_one_or_none()
+
+    if existing_robot:
+        return {
+            "message": "user already has a robot",
+            "robot_id": existing_robot.id,
+            "robot_name": existing_robot.name,
+            "owner_user_id": existing_robot.owner_user_id,
+            "robot_token": existing_robot.robot_token,
+        }
+
+    robot = db.execute(
+        select(Robot)
+        .where(Robot.owner_user_id.is_(None))
+        .order_by(Robot.id.asc())
+    ).scalar_one_or_none()
+
+    if not robot:
+        raise HTTPException(status_code=404, detail="No free robot available")
+
+    robot.owner_user_id = user.id
+    db.commit()
+    db.refresh(robot)
+
+    return {
+        "message": "free robot assigned",
+        "robot_id": robot.id,
+        "robot_name": robot.name,
+        "owner_user_id": robot.owner_user_id,
+        "robot_token": robot.robot_token,
+    }
 
 @app.delete("/admin/delete-all-robots")
 def delete_all_robots(db: Session = Depends(get_db)):

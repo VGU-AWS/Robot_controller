@@ -315,7 +315,31 @@ def release_robot(
         "robot_id": robot.id,
         "owner_user_id": robot.owner_user_id,
     }
+@app.post("/user/release-current-robot")
+def release_current_robot(
+    x_user_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    user = require_user(db, x_user_token)
 
+    robot = db.execute(
+        select(Robot).where(Robot.owner_user_id == user.id).order_by(Robot.id.asc())
+    ).scalar_one_or_none()
+
+    if not robot:
+        raise HTTPException(status_code=404, detail="User has no assigned robot")
+
+    db.query(Command).filter(Command.robot_id == robot.id).delete()
+    robot.owner_user_id = None
+    db.commit()
+    db.refresh(robot)
+
+    return {
+        "message": "current robot released",
+        "robot_id": robot.id,
+        "robot_name": robot.name,
+        "owner_user_id": robot.owner_user_id,
+    }
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(

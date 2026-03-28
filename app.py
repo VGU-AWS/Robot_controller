@@ -127,7 +127,7 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
-    return {"message": "robot api running", "ui": "/ui"}
+    return FileResponse("static/index.html")
 
 
 @app.get("/ui")

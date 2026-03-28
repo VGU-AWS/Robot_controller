@@ -7,64 +7,45 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <main class="container">
+    <header class="app-header">
       <h1>Robot Controller</h1>
-      <p class="subtitle">Simple frontend for the FastAPI robot backend.</p>
+      <button id="logoutBtn" class="ghost">Logout</button>
+    </header>
 
-      <section class="card">
-        <h2>API Settings</h2>
+    <main class="container">
+      <section id="page-landing" class="page card">
+        <h2>Welcome</h2>
+        <p class="subtitle">Register to start controlling an available robot.</p>
         <label>
-          Base URL
-          <input id="baseUrl" type="text" placeholder="http://localhost:8000" />
+          Your name
+          <input id="registerName" type="text" placeholder="Alice" />
         </label>
-        <button id="saveSettings">Use This URL</button>
+        <div class="actions">
+          <button id="registerBtn">Register</button>
+        </div>
       </section>
 
-      <section class="grid">
-        <article class="card">
-          <h2>Register User</h2>
-          <label>Name <input id="userName" type="text" placeholder="Alice" /></label>
-          <button id="registerUserBtn">Register User</button>
-        </article>
+      <section id="page-robots" class="page card hidden">
+        <h2>Find Robot</h2>
+        <p class="subtitle">Check free robots and connect one to your account.</p>
+        <div class="info-grid">
+          <div><span class="label">User</span><span id="userInfo">-</span></div>
+          <div><span class="label">Connected Robot</span><span id="connectedRobotInfo">None</span></div>
+          <div><span class="label">Available Robots</span><span id="availableCount">-</span></div>
+        </div>
+        <div class="actions">
+          <button id="refreshRobotsBtn" class="ghost">Refresh Available Robots</button>
+          <button id="connectRobotBtn">Connect Free Robot</button>
+        </div>
+      </section>
 
-        <article class="card">
-          <h2>Register Robot</h2>
-          <label>Name <input id="robotName" type="text" placeholder="R2D2" /></label>
-          <button id="registerRobotBtn">Register Robot</button>
-        </article>
-
-        <article class="card">
-          <h2>Claim Robot</h2>
-          <label>User Token <input id="claimUserToken" type="text" /></label>
-          <label>Robot Token <input id="claimRobotToken" type="text" /></label>
-          <button id="claimRobotBtn">Claim Robot</button>
-        </article>
-
-        <article class="card">
-          <h2>Send Command</h2>
-          <label>User Token <input id="sendUserToken" type="text" /></label>
-          <label>Robot ID <input id="sendRobotId" type="number" min="1" /></label>
-          <label>Command Text <input id="commandText" type="text" placeholder="MOVE_FORWARD" /></label>
-          <button id="sendCommandBtn">Send Command</button>
-        </article>
-
-        <article class="card">
-          <h2>Poll Robot</h2>
-          <label>Robot Token <input id="pollRobotToken" type="text" /></label>
-          <button id="pollBtn">Poll Pending Command</button>
-        </article>
-
-        <article class="card">
-          <h2>Acknowledge Command</h2>
-          <label>Robot Token <input id="ackRobotToken" type="text" /></label>
-          <label>Command ID <input id="ackCommandId" type="number" min="1" /></label>
-          <button id="ackBtn">Mark as Received</button>
-        </article>
-
-        <article class="card">
-          <h2>DB Health</h2>
-          <button id="healthBtn">Check Health</button>
-        </article>
+      <section id="page-commands" class="page card hidden">
+        <h2>Send Command</h2>
+        <p class="subtitle">Use the control buttons to send movement instructions.</p>
+        <div id="commandButtons" class="command-grid"></div>
+        <div class="actions top-gap">
+          <button id="releaseRobotBtn" class="danger">Free Robot</button>
+        </div>
       </section>
 
       <section class="card output-wrap">

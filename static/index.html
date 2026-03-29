@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robot Controller UI</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Robot Controller</h1>
+      <p class="subtitle">Simple frontend for the FastAPI robot backend.</p>
+
+      <section class="card">
+        <h2>API Settings</h2>
+        <label>
+          Base URL
+          <input id="baseUrl" type="text" placeholder="http://localhost:8000" />
+        </label>
+        <button id="saveSettings">Use This URL</button>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Register User</h2>
+          <label>Name <input id="userName" type="text" placeholder="Alice" /></label>
+          <button id="registerUserBtn">Register User</button>
+        </article>
+
+        <article class="card">
+          <h2>Register Robot</h2>
+          <label>Name <input id="robotName" type="text" placeholder="R2D2" /></label>
+          <button id="registerRobotBtn">Register Robot</button>
+        </article>
+
+        <article class="card">
+          <h2>Claim Robot</h2>
+          <label>User Token <input id="claimUserToken" type="text" /></label>
+          <label>Robot Token <input id="claimRobotToken" type="text" /></label>
+          <button id="claimRobotBtn">Claim Robot</button>
+        </article>
+
+        <article class="card">
+          <h2>Send Command</h2>
+          <label>User Token <input id="sendUserToken" type="text" /></label>
+          <label>Robot ID <input id="sendRobotId" type="number" min="1" /></label>
+          <label>Command Text <input id="commandText" type="text" placeholder="MOVE_FORWARD" /></label>
+          <button id="sendCommandBtn">Send Command</button>
+        </article>
+
+        <article class="card">
+          <h2>Poll Robot</h2>
+          <label>Robot Token <input id="pollRobotToken" type="text" /></label>
+          <button id="pollBtn">Poll Pending Command</button>
+        </article>
+
+        <article class="card">
+          <h2>Acknowledge Command</h2>
+          <label>Robot Token <input id="ackRobotToken" type="text" /></label>
+          <label>Command ID <input id="ackCommandId" type="number" min="1" /></label>
+          <button id="ackBtn">Mark as Received</button>
+        </article>
+
+        <article class="card">
+          <h2>DB Health</h2>
+          <button id="healthBtn">Check Health</button>
+        </article>
+      </section>
+
+      <section class="card output-wrap">
+        <h2>Response</h2>
+        <pre id="output">Ready.</pre>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

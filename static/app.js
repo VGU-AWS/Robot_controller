@@ -56,12 +56,19 @@ function writeOutput(title, payload) {
 }
 
 async function request(path, options = {}) {
+  const bodyIsPlainObject =
+    options.body !== undefined &&
+    options.body !== null &&
+    typeof options.body === "object" &&
+    !(options.body instanceof FormData);
+
   const response = await fetch(`${state.baseUrl}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
     },
     ...options,
+    body: bodyIsPlainObject ? JSON.stringify(options.body) : options.body,
   });
 
   let data;
@@ -154,7 +161,7 @@ async function registerUser() {
   try {
     const data = await request("/register/user", {
       method: "POST",
-      body: JSON.stringify({ name }),
+      body: { name },
     });
 
     state.userName = data.name;
@@ -205,7 +212,7 @@ async function sendCommand(commandKey) {
     const data = await request("/user/send-command", {
       method: "POST",
       headers: { "X-User-Token": state.userToken },
-      body: JSON.stringify({ robot_id: state.robotId, command_text: commandKey }),
+      body: { robot_id: state.robotId, command_text: commandKey },
     });
     writeOutput(`Command ${commandKey} sent`, data);
   } catch (error) {

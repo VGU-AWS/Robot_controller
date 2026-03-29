@@ -1,10 +1,11 @@
+import json
 import secrets
 from datetime import datetime, timezone
 import os
 from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, select, func
 from sqlalchemy.orm import sessionmaker, declarative_base, Session, relationship
 from fastapi.middleware.cors import CORSMiddleware
@@ -98,6 +99,16 @@ class ClaimRobotRequest(BaseModel):
 class SendCommandRequest(BaseModel):
     robot_id: int
     command_text: str
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_json_string_body(cls, data):
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except json.JSONDecodeError as exc:
+                raise ValueError("Body must be a JSON object or a JSON-encoded object string") from exc
+        return data
 
 
 class AckCommandRequest(BaseModel):

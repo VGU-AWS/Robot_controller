@@ -372,10 +372,19 @@ def disconnect_all_users(db: Session = Depends(get_db)):
         "message": "all users disconnected from all robots",
         "disconnected_robots": disconnected_robots,
     }
+def resolve_runtime_port() -> int:
+    """Resolve the runtime port for local runs and AWS ECS deployments."""
+    for env_name in ("PORT", "APP_PORT", "ECS_PORT"):
+        value = os.getenv(env_name)
+        if value:
+            return int(value)
+    return 8080
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         app,
         host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8080")),
+        port=resolve_runtime_port(),
     )

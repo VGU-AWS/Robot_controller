@@ -2,7 +2,7 @@ import json
 import secrets
 from datetime import datetime, timezone
 import os
-from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi import Body, Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, model_validator
@@ -189,16 +189,29 @@ def claim_robot(payload: ClaimRobotRequest, x_user_token: str | None = Header(de
 
 
 @app.post("/user/send-command")
-def send_command(payload: SendCommandRequest, x_user_token: str | None = Header(default=None), db: Session = Depends(get_db)):
+def send_command(
+    payload: SendCommandRequest | None = Body(default=None),
+    robot_id: int | None = None,
+    command_text: str | None = None,
+    x_user_token: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
     user = require_user(db, x_user_token)
-    robot = db.get(Robot, payload.robot_id)
+
+    resolved_robot_id = payload.robot_id if payload else robot_id
+    resolved_command_text = payload.command_text if payload else command_text
+
+    if resolved_robot_id is None or resolved_command_text is None:
+        raise HTTPException(status_code=422, detail="robot_id and command_text are required")
+
+    robot = db.get(Robot, resolved_robot_id)
 
     if not robot:
         raise HTTPException(status_code=404, detail="Robot not found")
     if robot.owner_user_id != user.id:
         raise HTTPException(status_code=403, detail="You do not own this robot")
 
-    cmd = Command(robot_id=robot.id, user_id=user.id, command_text=payload.command_text, status="pending")
+    cmd = Command(robot_id=robot.id, user_id=user.id, command_text=resolved_command_text, status="pending")
     db.add(cmd)
     db.commit()
     db.refresh(cmd)

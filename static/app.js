@@ -208,11 +208,15 @@ async function sendCommand(commandKey) {
     return;
   }
 
+  const params = new URLSearchParams({
+    robot_id: String(state.robotId),
+    command_text: commandKey,
+  });
+
   try {
-    const data = await request("/user/send-command", {
+    const data = await request(`/user/send-command?${params.toString()}`, {
       method: "POST",
       headers: { "X-User-Token": state.userToken },
-      body: { robot_id: state.robotId, command_text: commandKey },
     });
     writeOutput(`Command ${commandKey} sent`, data);
   } catch (error) {
